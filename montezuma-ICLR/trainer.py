@@ -14,6 +14,7 @@ class IntrinsicMotivation():
 				 experience_memory=None,
 				 image_processor=None,
 				 subgoal_discovery=None,
+				 logger=None,
 				 **kwargs):
 
 		self.env = env
@@ -21,6 +22,7 @@ class IntrinsicMotivation():
 		self.experience_memory = experience_memory
 		self.image_processor = image_processor
 		self.subgoal_discovery = subgoal_discovery
+		self.logger = logger
 
 		self.testing_env = Environment(task=self.env.task) # testing environment
 		self.testing_scores = [] # record testing scores
@@ -212,11 +214,14 @@ class IntrinsicMotivation():
 		subgoal_orders = subgoals_order_before_key + key + subgoals_order_after_key + door
 		print('testing the controller')
 		self.S_test = self.testing_env.reset()
-		for g_id in subgoal_orders:
-			self.test_reaching_subgoal(g_id=g_id)
-			if self.testing_task_done:
-				print('testing is succesful!')
-				break
+		try:
+			for g_id in subgoal_orders:
+				self.test_reaching_subgoal(g_id=g_id)
+				if self.testing_task_done:
+					print('testing is succesful!')
+					break
+		except IndexError:
+			raise ValueError('testing is not successful and errored %d' % g_id)
 		if not self.testing_task_done:
 			print('testing is not succesful!')
 
@@ -305,6 +310,7 @@ class MetaControllerController():
 				meta_controller_experience_memory=None,
 				image_processor=None,
 				subgoal_discovery=None,
+				logger=None,
 				**kwargs):
 		self.env = env
 		self.controller = controller
@@ -314,6 +320,7 @@ class MetaControllerController():
 		self.image_processor = image_processor
 		self.subgoal_discovery = subgoal_discovery
 		self.G = image_processor.discovered_subgoals_set
+		self.logger = logger
 
 		self.testing_env = Environment(task=self.env.task) # testing environment
 		self.epsilon_testing = 0.05
